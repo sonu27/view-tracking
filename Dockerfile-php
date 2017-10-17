@@ -1,0 +1,10 @@
+FROM php:7.1-fpm-alpine
+
+RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
+    docker-php-ext-install opcache && \
+    apk del .phpize-deps
+
+COPY docker/php/www.conf /usr/local/etc/php-fpm.d/
+COPY docker/php/override.ini $PHP_INI_DIR/conf.d/
+
+COPY . /var/www/
