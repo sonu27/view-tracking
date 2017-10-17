@@ -1,6 +1,7 @@
 index:
     path: /
     defaults: { _controller: 'App\Controller\DefaultController::indexAction' }
+    methods:  [POST]
 
 # first, run composer req annotations
 #controllers:
