@@ -6,6 +6,8 @@ use App\Model\View;
 use App\Repository\ViewCountRepository;
 use App\Repository\ViewRepository;
 use Aws\DynamoDb\Exception\DynamoDbException;
+use Defuse\Crypto\Crypto;
+use Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,8 +19,20 @@ class DefaultController extends Controller
         $time = round(microtime(true) * 1000);
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['event'], $data['resource-id']) || !in_array($data['event'], View::EVENTS, true)) {
+        if (!isset($data['event'], $data['resource-id'])
+            || !in_array($data['event'], View::EVENTS, true)) {
+
             return new Response('Bad response', 400);
+        }
+
+        $userId = null;
+        if ($request->headers->has('Authorization')) {
+            $auth = str_replace('Bearer ', '', $request->headers->get('Authorization'));
+
+            JWT::$leeway = 60;
+            $payload     = JWT::decode($auth, base64_decode(getenv('PUBLIC_KEY')), ['RS256']);
+
+            $userId = Crypto::decryptWithPassword($payload->did, getenv('APP_KEY'));
         }
 
         $resourceType = (string)explode('-', $data['event'])[1];
@@ -28,7 +42,7 @@ class DefaultController extends Controller
             $data['event'],
             $resourceType,
             $resourceId,
-            !empty($data['user-id']) ? (int)$data['user-id'] : null
+            $userId
         );
 
         $recordData = $view->toArray();
