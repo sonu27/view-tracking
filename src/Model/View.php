@@ -60,12 +60,12 @@ class View
     public function toArray(): array
     {
         return [
-            'uuid'       => $this->id,
+            'id'         => (string)$this->id,
             'event'      => $this->event,
             //    'userUuid'   => $this->['user-uuid'],
             'userId'     => $this->userId,
+            'resourceType'   => $this->resourceType,
             'resourceId' => $this->resourceId,
-            'resource'   => $this->resourceType,
             'unixTime'   => $this->unixTime,
         ];
     }

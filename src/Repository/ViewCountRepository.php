@@ -23,8 +23,8 @@ class ViewCountRepository
         return $this->client->updateItem([
             'TableName'                 => self::TABLE,
             'Key'                       => [
-                'resourceId' => ['N' => $resourceId],
-                'resource'   => ['S' => $resourceType],
+                'resourceId'   => ['N' => (string)$resourceId],
+                'resourceType' => ['S' => (string)$resourceType],
             ],
             'UpdateExpression'          => 'Add num :incr',
             'ExpressionAttributeValues' => [

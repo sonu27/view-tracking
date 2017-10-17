@@ -17,19 +17,12 @@ class DefaultController extends Controller
         $time = round(microtime(true) * 1000);
         $data = json_decode($request->getContent(), true);
 
-        $events = [
-            'view-user',
-            'view-page',
-            'view-project',
-            'view-job',
-        ];
-
-        if (!isset($data['event'], $data['resource-id']) || !in_array($data['event'], $events, true)) {
+        if (!isset($data['event'], $data['resource-id']) || !in_array($data['event'], View::EVENTS, true)) {
             return new Response('Bad response', 400);
         }
 
         $resourceType = (string)explode('-', $data['event'])[1];
-        $resourceId = (int)$data['resource-id'];
+        $resourceId   = (int)$data['resource-id'];
 
         $view = new View(
             $data['event'],
@@ -47,7 +40,7 @@ class DefaultController extends Controller
         $viewCountRepo = $this->get(ViewCountRepository::class);
 
         // find any items within the last session time
-        $result = $viewRepo->findRecent($resourceType, $resourceId, $time);
+        $result['Count'] = 0;
 
         if ($result['Count'] == 0) {
             try {

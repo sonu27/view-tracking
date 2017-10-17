@@ -23,7 +23,7 @@ class ViewRepository
 
     public function __construct(DynamoDbClient $client, Marshaler $marshaler)
     {
-        $this->client = $client;
+        $this->client    = $client;
         $this->marshaler = $marshaler;
     }
 
@@ -41,12 +41,12 @@ class ViewRepository
     {
         return $this->client->query([
             'TableName'                 => self::TABLE,
-            'KeyConditionExpression'    => 'resource = :r and resourceId = :resourceId',
+            'KeyConditionExpression'    => 'resourceType = :r and resourceId = :resourceId',
             'FilterExpression'          => 'unixTime > :t',
             'ExpressionAttributeValues' => [
-                ':r'          => $resourceType,
-                ':resourceId' => $resourceId,
-                ':t'          => $currentTime - self::SESSION_TIME_IN_MILLISECONDS,
+                ':r'          => ['S' => (string)$resourceType],
+                ':resourceId' => ['I' => (string)$resourceId],
+                ':t'          => ['I' => $currentTime - self::SESSION_TIME_IN_MILLISECONDS],
             ],
         ]);
     }
