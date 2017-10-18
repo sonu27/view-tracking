@@ -5,10 +5,13 @@ namespace App\Controller;
 use App\Model\View;
 use App\Repository\ViewCountRepository;
 use App\Repository\ViewRepository;
+use App\Service\Encryptor;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Defuse\Crypto\Crypto;
 use Firebase\JWT\JWT;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,6 +26,19 @@ class DefaultController extends Controller
             || !in_array($data['event'], View::EVENTS, true)) {
 
             return new Response('Bad response', 400);
+        }
+
+        $response = Response::create();
+
+        /** @var Encryptor $encryptor */
+        $encryptor = $this->get(Encryptor::class);
+
+        if ($request->cookies->has('userUuid')) {
+            $userUuid = $encryptor->decrypt($request->cookies->get('userUuid'));
+            $response->headers->setCookie($this->getCookie('userUuid', $request->cookies->get('userUuid')));
+        } else {
+            $userUuid = $encryptor->encrypt((string)Uuid::uuid4());
+            $response->headers->setCookie($this->getCookie('userUuid', $userUuid));
         }
 
         $userId = null;
@@ -42,6 +58,7 @@ class DefaultController extends Controller
             $data['event'],
             $resourceType,
             $resourceId,
+            $userUuid,
             $userId
         );
 
@@ -67,6 +84,13 @@ class DefaultController extends Controller
             $viewRepo->addView($recordData);
         }
 
-        return new Response('Success');
+        $response->setContent('Success');
+
+        return $response;
+    }
+
+    private function getCookie(string $key, string $value): Cookie
+    {
+        return new Cookie($key, $value, strtotime('+30 minutes'), '/', getenv('DOMAIN'), true);
     }
 }

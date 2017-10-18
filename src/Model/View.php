@@ -17,39 +17,50 @@ class View
      * @var string
      */
     private $id;
+
     /**
      * @var string
      */
     private $event;
+
     /**
      * @var string
      */
     private $resourceType;
+
     /**
      * @var int
      */
     private $resourceId;
+
+    /**
+     * @var string
+     */
+    private $userUuid;
+
     /**
      * @var int
      */
     private $unixTime;
+
     /**
      * @var int
      */
     private $userId;
 
-    public function __construct(string $event, string $resourceType, int $resourceId, int $userId = null)
+    public function __construct(string $event, string $resourceType, int $resourceId, string $userUuid, int $userId = null)
     {
         if (!$this->validEvent($event)) {
             throw new \DomainException('Event is not valid');
         }
 
-        $this->id = Uuid::uuid4();
-        $this->event = $event;
+        $this->id           = Uuid::uuid4();
+        $this->event        = $event;
         $this->resourceType = $resourceType;
-        $this->resourceId = $resourceId;
-        $this->unixTime = round(microtime(true) * 1000);
-        $this->userId = $userId;
+        $this->resourceId   = $resourceId;
+        $this->userUuid     = $userUuid;
+        $this->unixTime     = round(microtime(true) * 1000);
+        $this->userId       = $userId;
     }
 
     private function validEvent(string $event): bool
@@ -60,13 +71,13 @@ class View
     public function toArray(): array
     {
         return [
-            'id'         => (string)$this->id,
-            'event'      => $this->event,
-            //    'userUuid'   => $this->['user-uuid'],
-            'userId'     => $this->userId,
-            'resourceType'   => $this->resourceType,
-            'resourceId' => $this->resourceId,
-            'unixTime'   => $this->unixTime,
+            'id'           => (string)$this->id,
+            'event'        => $this->event,
+            'resourceType' => $this->resourceType,
+            'resourceId'   => $this->resourceId,
+            'userUuid'     => $this->userUuid,
+            'unixTime'     => $this->unixTime,
+            'userId'       => $this->userId,
         ];
     }
 }

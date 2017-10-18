@@ -27,15 +27,20 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
+    App\Repository\ViewCountRepository:
+        arguments:
+            - '@Aws\DynamoDb\DynamoDbClient'
+        public: true
+
     App\Repository\ViewRepository:
         arguments:
             - '@Aws\DynamoDb\DynamoDbClient'
             - '@Aws\DynamoDb\Marshaler'
         public: true
 
-    App\Repository\ViewCountRepository:
+    App\Service\Encryptor:
         arguments:
-            - '@Aws\DynamoDb\DynamoDbClient'
+            - '%env(APP_KEY)%'
         public: true
 
     Aws\DynamoDb\DynamoDbClient:
