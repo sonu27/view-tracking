@@ -45,7 +45,11 @@ class DefaultController extends Controller
         $viewCountRepo = $this->get(ViewCountRepository::class);
 
         // find any items within the last session time
-        $result['Count'] = 0;
+        try {
+            $result = $viewRepo->findRecentByUser($resourceType, $resourceId, $userUuid, $time);
+        } catch (DynamoDbException $e) {
+            var_dump($e->getMessage());//todo: remove
+        }
 
         if ($result['Count'] == 0) {
             try {
@@ -55,7 +59,7 @@ class DefaultController extends Controller
                 return new Response('Unable to add item', 400);
             }
 
-            $viewRepo->addView($view->toArray());
+            $viewRepo->addView($view);
         }
 
         $response->headers->setCookie($this->getCookie('userUuid', $encryptor->encrypt($userUuid)));

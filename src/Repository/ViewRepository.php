@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 
+use App\Model\View;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
 
@@ -27,8 +28,9 @@ class ViewRepository
         $this->marshaler = $marshaler;
     }
 
-    public function addView(array $data)
+    public function addView(View $view)
     {
+        $data   = $this->convertView($view);
         $params = [
             'TableName' => self::TABLE,
             'Item'      => $this->marshaler->marshalItem($data),
@@ -37,17 +39,35 @@ class ViewRepository
         return $this->client->putItem($params);
     }
 
-    public function findRecent(string $resourceType, int $resourceId, int $currentTime)
+    public function findRecentByUser(string $resourceType, int $resourceId, string $userUuid, int $currentTime)
     {
+        $resource = $resourceType.'-'.$resourceId;
+
         return $this->client->query([
             'TableName'                 => self::TABLE,
-            'KeyConditionExpression'    => 'resourceType = :r and resourceId = :resourceId',
-            'FilterExpression'          => 'unixTime > :t',
+            'KeyConditionExpression'    => 'ID = :resource',
+            'FilterExpression'          => 'UserUUID = :userUuid and UnixTime > :t',
             'ExpressionAttributeValues' => [
-                ':r'          => ['S' => (string)$resourceType],
-                ':resourceId' => ['I' => (string)$resourceId],
-                ':t'          => ['I' => $currentTime - self::SESSION_TIME_IN_MILLISECONDS],
+                ':resource' => ['S' => $resource],
+                ':userUuid' => ['S' => $userUuid],
+                ':t'        => ['N' => (string)($currentTime - self::SESSION_TIME_IN_MILLISECONDS)],
             ],
         ]);
+    }
+
+    private function convertView(View $view)
+    {
+        $viewData = $view->toArray();
+
+        return [
+            'ID'           => $viewData['resourceType'].'-'.$viewData['resourceId'],
+            'UUID'         => $viewData['id'],
+            'event'        => $viewData['event'],
+            'ResourceType' => $viewData['resourceType'],
+            'ResourceId'   => $viewData['resourceId'],
+            'UserUUID'     => $viewData['userUuid'],
+            'UnixTime'     => $viewData['unixTime'],
+            'UserId'       => $viewData['userId'],
+        ];
     }
 }

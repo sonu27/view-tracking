@@ -25,44 +25,84 @@ $params = [
     'TableName'             => 'Views',
     'KeySchema'             => [
         [
-            'AttributeName' => 'id',
+            'AttributeName' => 'ID',
             'KeyType'       => 'HASH'  //Partition key
         ],
         [
-            'AttributeName' => 'resourceId',
+            'AttributeName' => 'UUID',
             'KeyType'       => 'RANGE'  //Sort key
         ],
     ],
     'AttributeDefinitions'  => [
         [
-            'AttributeName' => 'id',
+            'AttributeName' => 'ID',
             'AttributeType' => 'S',
         ],
         [
-            'AttributeName' => 'resourceId',
+            'AttributeName' => 'UUID',
+            'AttributeType' => 'S',
+        ],
+        [
+            'AttributeName' => 'UserUUID',
+            'AttributeType' => 'S',
+        ],
+        [
+            'AttributeName' => 'UnixTime',
             'AttributeType' => 'N',
         ],
         [
-            'AttributeName' => 'resourceType',
+            'AttributeName' => 'ResourceType',
             'AttributeType' => 'S',
         ],
 
     ],
     'LocalSecondaryIndexes' => [
         [
-            'IndexName' => 'ResourceIndex',
-            'KeySchema' => [
+            'IndexName'  => 'UserUuidIndex',
+            'KeySchema'  => [
                 [
-                    'AttributeName' => 'id',
-                    'KeyType' => 'HASH',
+                    'AttributeName' => 'ID',
+                    'KeyType'       => 'HASH',
                 ],
                 [
-                    'AttributeName' => 'resourceType',
-                    'KeyType' => 'RANGE',
+                    'AttributeName' => 'UserUUID',
+                    'KeyType'       => 'RANGE',
                 ],
             ],
             'Projection' => [
-                'ProjectionType' => 'ALL',
+                'ProjectionType' => 'KEYS_ONLY',
+            ],
+        ],
+        [
+            'IndexName'  => 'UnixTimeIndex',
+            'KeySchema'  => [
+                [
+                    'AttributeName' => 'ID',
+                    'KeyType'       => 'HASH',
+                ],
+                [
+                    'AttributeName' => 'UnixTime',
+                    'KeyType'       => 'RANGE',
+                ],
+            ],
+            'Projection' => [
+                'ProjectionType' => 'KEYS_ONLY',
+            ],
+        ],
+        [
+            'IndexName'  => 'ResourceTypeIndex',
+            'KeySchema'  => [
+                [
+                    'AttributeName' => 'ID',
+                    'KeyType'       => 'HASH',
+                ],
+                [
+                    'AttributeName' => 'ResourceType',
+                    'KeyType'       => 'RANGE',
+                ],
+            ],
+            'Projection' => [
+                'ProjectionType' => 'KEYS_ONLY',
             ],
         ],
     ],
