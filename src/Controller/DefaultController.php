@@ -19,8 +19,9 @@ class DefaultController extends Controller
 {
     public function indexAction(Request $request)
     {
-        $time = round(microtime(true) * 1000);
-        $data = json_decode($request->getContent(), true);
+        $response = Response::create();
+        $data     = json_decode($request->getContent(), true);
+        $time     = round(microtime(true) * 1000);
 
         if (!isset($data['event'], $data['resource-id'])
             || !in_array($data['event'], View::EVENTS, true)) {
@@ -28,41 +29,14 @@ class DefaultController extends Controller
             return new Response('Bad response', 400);
         }
 
-        $response = Response::create();
+        $userUuid     = $this->getUserUuidFromRequestOrCreateNewOne($request);
+        $userId       = $this->getUserIdFromRequest($request);
+        $resourceType = (string)explode('-', $data['event'])[1];
+        $resourceId   = (int)$data['resource-id'];
+        $view         = new View($data['event'], $resourceType, $resourceId, $userUuid, $userId);
 
         /** @var Encryptor $encryptor */
         $encryptor = $this->get(Encryptor::class);
-
-        if ($request->cookies->has('userUuid')) {
-            $userUuid = $encryptor->decrypt($request->cookies->get('userUuid'));
-            $response->headers->setCookie($this->getCookie('userUuid', $request->cookies->get('userUuid')));
-        } else {
-            $userUuid = $encryptor->encrypt((string)Uuid::uuid4());
-            $response->headers->setCookie($this->getCookie('userUuid', $userUuid));
-        }
-
-        $userId = null;
-        if ($request->headers->has('Authorization')) {
-            $auth = str_replace('Bearer ', '', $request->headers->get('Authorization'));
-
-            JWT::$leeway = 60;
-            $payload     = JWT::decode($auth, base64_decode(getenv('PUBLIC_KEY')), ['RS256']);
-
-            $userId = Crypto::decryptWithPassword($payload->did, getenv('APP_KEY'));
-        }
-
-        $resourceType = (string)explode('-', $data['event'])[1];
-        $resourceId   = (int)$data['resource-id'];
-
-        $view = new View(
-            $data['event'],
-            $resourceType,
-            $resourceId,
-            $userUuid,
-            $userId
-        );
-
-        $recordData = $view->toArray();
 
         /** @var ViewRepository $viewRepo */
         $viewRepo = $this->get(ViewRepository::class);
@@ -81,9 +55,10 @@ class DefaultController extends Controller
                 return new Response('Unable to add item', 400);
             }
 
-            $viewRepo->addView($recordData);
+            $viewRepo->addView($view->toArray());
         }
 
+        $response->headers->setCookie($this->getCookie('userUuid', $encryptor->encrypt($userUuid)));
         $response->setContent('Success');
 
         return $response;
@@ -92,5 +67,33 @@ class DefaultController extends Controller
     private function getCookie(string $key, string $value): Cookie
     {
         return new Cookie($key, $value, strtotime('+30 minutes'), '/', getenv('DOMAIN'), true);
+    }
+
+    private function getUserIdFromRequest(Request $request)
+    {
+        $userId = null;
+        if ($request->headers->has('Authorization')) {
+            $auth = str_replace('Bearer ', '', $request->headers->get('Authorization'));
+
+            JWT::$leeway = 60;
+            $payload     = JWT::decode($auth, base64_decode(getenv('PUBLIC_KEY')), ['RS256']);
+
+            $encryptor = $this->get(Encryptor::class);
+            $userId    = $encryptor->decrypt($payload->did);
+        }
+
+        return $userId;
+    }
+
+    private function getUserUuidFromRequestOrCreateNewOne(Request $request): string
+    {
+        if ($request->cookies->has('userUuid')) {
+            $encryptor = $this->get(Encryptor::class);
+            $userUuid  = $encryptor->decrypt($request->cookies->get('userUuid'));
+        } else {
+            $userUuid = (string)Uuid::uuid4();
+        }
+
+        return $userUuid;
     }
 }

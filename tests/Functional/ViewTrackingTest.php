@@ -5,7 +5,6 @@ namespace App\Tests\Functional;
 use App\Service\Encryptor;
 use Symfony\Component\BrowserKit\Cookie as BKCookie;
 use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\Request;
 
 class ViewTrackingTest extends WebTestCase
 {
