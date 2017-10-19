@@ -3,6 +3,7 @@
 namespace App\Tests\Functional;
 
 use App\Service\Encryptor;
+use Firebase\JWT\JWT;
 use Symfony\Component\BrowserKit\Cookie as BKCookie;
 use Symfony\Component\HttpFoundation\Cookie;
 
@@ -24,16 +25,20 @@ class ViewTrackingTest extends WebTestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    public function test(): void
+    public function testUserIdDecryption(): void
     {
         $content = [
             'event'       => 'view-user',
             'resource-id' => 1234,
-            'user-id' => 111,
         ];
 
+        $encryptor = new Encryptor(getenv('APP_KEY'));
+        $userId    = $encryptor->encrypt('123');
+
+        $auth = JWT::encode(['did' => $userId], base64_decode(getenv('PRIVATE_KEY')), 'RS256');
+
         $client = static::createClient();
-        $client->request('POST', '/', [], [], [], json_encode($content));
+        $client->request('POST', '/', [], [], ['HTTP_AUTHORIZATION' => "Bearer {$auth}"], json_encode($content));
 
         $response = $client->getResponse();
 
