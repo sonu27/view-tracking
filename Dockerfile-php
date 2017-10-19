@@ -7,4 +7,20 @@ RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/
 COPY docker/php/override.ini $PHP_INI_DIR/conf.d/
 
+RUN curl -sS https://getcomposer.org/installer | \
+    php -- --install-dir=/usr/bin/ --filename=composer
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+COPY composer.json /var/www/
+COPY composer.lock /var/www/
+
+WORKDIR /var/www/
+
+RUN composer install --no-scripts --no-autoloader --no-progress
+
 COPY . /var/www/
+
+RUN composer dump-autoload --optimize
+
+WORKDIR /var/www/html

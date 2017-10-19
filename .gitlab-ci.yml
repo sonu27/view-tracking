@@ -1,0 +1,25 @@
+image: docker:latest
+services:
+- docker:dind
+
+stages:
+- build
+- test
+
+variables:
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+
+build:
+  stage: build
+  script:
+    - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile-php .
+    - docker push $CONTAINER_TEST_IMAGE
+
+test1:
+  stage: test
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker run -w /var/www -e APP_ENV=test $CONTAINER_TEST_IMAGE vendor/bin/phpunit
