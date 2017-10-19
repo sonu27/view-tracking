@@ -22,4 +22,4 @@ test1:
   stage: test
   script:
     - docker pull $CONTAINER_TEST_IMAGE
-    - docker run -w /var/www -e APP_ENV=test $CONTAINER_TEST_IMAGE vendor/bin/phpunit
+    - docker run -w /var/www -e APP_ENV=test -e APP_KEY $CONTAINER_TEST_IMAGE vendor/bin/phpunit
