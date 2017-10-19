@@ -10,7 +10,7 @@ use Aws\DynamoDb\Marshaler;
 class ViewRepository
 {
     const TABLE = 'Views';
-    const SESSION_TIME_IN_MILLISECONDS = 180000;
+    const SESSION_TIME_IN_MILLISECONDS = 180000;// 30 mins
 
     /**
      * @var DynamoDbClient
@@ -41,14 +41,12 @@ class ViewRepository
 
     public function findRecentByUser(string $resourceType, int $resourceId, string $userUuid, int $currentTime)
     {
-        $resource = $resourceType.'-'.$resourceId;
-
         return $this->client->query([
             'TableName'                 => self::TABLE,
             'KeyConditionExpression'    => 'ID = :resource',
             'FilterExpression'          => 'UserUUID = :userUuid and UnixTime > :t',
             'ExpressionAttributeValues' => [
-                ':resource' => ['S' => $resource],
+                ':resource' => ['S' => $this->getId($resourceType, $resourceId)],
                 ':userUuid' => ['S' => $userUuid],
                 ':t'        => ['N' => (string)($currentTime - self::SESSION_TIME_IN_MILLISECONDS)],
             ],
@@ -60,7 +58,7 @@ class ViewRepository
         $viewData = $view->toArray();
 
         return [
-            'ID'           => $viewData['resourceType'].'-'.$viewData['resourceId'],
+            'ID'           => $this->getId($viewData['resourceType'], $viewData['resourceId']),
             'UUID'         => $viewData['id'],
             'event'        => $viewData['event'],
             'ResourceType' => $viewData['resourceType'],
@@ -69,5 +67,10 @@ class ViewRepository
             'UnixTime'     => $viewData['unixTime'],
             'UserId'       => $viewData['userId'],
         ];
+    }
+
+    private function getId(string $resourceType, int $resourceId): string
+    {
+        return $resourceType.'-'.$resourceId;
     }
 }

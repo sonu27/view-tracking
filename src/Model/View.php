@@ -48,7 +48,7 @@ class View
      */
     private $userId;
 
-    public function __construct(string $event, string $resourceType, int $resourceId, string $userUuid, int $userId = null)
+    public function __construct(string $event, int $resourceId, string $userUuid, int $userId = null)
     {
         if (!$this->validEvent($event)) {
             throw new \DomainException('Event is not valid');
@@ -56,7 +56,7 @@ class View
 
         $this->id           = Uuid::uuid4();
         $this->event        = $event;
-        $this->resourceType = $resourceType;
+        $this->resourceType = (string)explode('-', $event)[1];;
         $this->resourceId   = $resourceId;
         $this->userUuid     = $userUuid;
         $this->unixTime     = round(microtime(true) * 1000);
