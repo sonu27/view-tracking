@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.36.27",
+            "version": "3.36.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6a4c2643cd0883987da815f292f07d00ee098622"
+                "reference": "210958295921f0004d0fdc38bc9aefe33ef2a3de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6a4c2643cd0883987da815f292f07d00ee098622",
-                "reference": "6a4c2643cd0883987da815f292f07d00ee098622",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/210958295921f0004d0fdc38bc9aefe33ef2a3de",
+                "reference": "210958295921f0004d0fdc38bc9aefe33ef2a3de",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2017-10-16T18:49:51+00:00"
+            "time": "2017-10-18T18:46:11+00:00"
         },
         {
             "name": "defuse/php-encryption",
@@ -3432,16 +3432,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.0.30",
+            "version": "v1.0.32",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "9d5bd8866c4e603ecab4d34dfb7b55933a16fb36"
+                "reference": "7a2141630c5f8cabcd9e5201ef3db90a17d979dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/9d5bd8866c4e603ecab4d34dfb7b55933a16fb36",
-                "reference": "9d5bd8866c4e603ecab4d34dfb7b55933a16fb36",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/7a2141630c5f8cabcd9e5201ef3db90a17d979dc",
+                "reference": "7a2141630c5f8cabcd9e5201ef3db90a17d979dc",
                 "shasum": ""
             },
             "require": {
@@ -3474,7 +3474,7 @@
                     "email": "fabien.potencier@gmail.com"
                 }
             ],
-            "time": "2017-10-16T23:06:15+00:00"
+            "time": "2017-10-18T20:36:42+00:00"
         },
         {
             "name": "theseer/tokenizer",
