@@ -86,8 +86,10 @@ class DefaultController extends Controller
             JWT::$leeway = 60;
             $payload     = JWT::decode($auth, base64_decode(getenv('PUBLIC_KEY')), ['RS256']);
 
-            $encryptor = $this->get(Encryptor::class);
-            $userId    = $encryptor->decrypt($payload->did);
+            if (isset($payload->did)) {
+                $encryptor = $this->get(Encryptor::class);
+                $userId    = $encryptor->decrypt($payload->did);
+            }
         }
 
         return $userId;
