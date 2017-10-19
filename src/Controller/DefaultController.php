@@ -16,6 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends Controller
 {
+    public function homeAction()
+    {
+        return new Response('View tracking');
+    }
+
     public function indexAction(Request $request)
     {
         $response = Response::create();
