@@ -51,7 +51,6 @@ class ViewTrackingTest extends WebTestCase
         $content = [
             'event'       => 'view-user',
             'resource-id' => 1234,
-            'user-id'     => 111,
         ];
 
         $client = static::createClient();
@@ -73,7 +72,6 @@ class ViewTrackingTest extends WebTestCase
         $content = [
             'event'       => 'view-user',
             'resource-id' => 1234,
-            'user-id'     => 111,
         ];
 
         $encryptor = new Encryptor(getenv('APP_KEY'));

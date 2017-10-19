@@ -7,7 +7,6 @@ use App\Repository\ViewCountRepository;
 use App\Repository\ViewRepository;
 use App\Service\Encryptor;
 use Aws\DynamoDb\Exception\DynamoDbException;
-use Defuse\Crypto\Crypto;
 use Firebase\JWT\JWT;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -51,7 +50,7 @@ class DefaultController extends Controller
             var_dump($e->getMessage());//todo: remove
         }
 
-        if ($result['Count'] == 0) {
+        if (isset($result['Count']) && $result['Count'] == 0) {
             try {
                 $viewCountRepo->incrementCount($resourceId, $resourceType);
 
