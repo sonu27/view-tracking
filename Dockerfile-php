@@ -1,6 +1,7 @@
 FROM php:7.1-fpm-alpine
 
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
+    apk add --no-cache unzip && \
     docker-php-ext-install opcache && \
     apk del .phpize-deps
 
