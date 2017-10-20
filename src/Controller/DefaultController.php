@@ -6,6 +6,7 @@ use App\Model\View;
 use App\Repository\ViewCountRepository;
 use App\Repository\ViewRepository;
 use App\Service\Encryptor;
+use App\Service\Jwt;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -82,7 +83,7 @@ class DefaultController extends Controller
         if ($request->headers->has('Authorization')) {
             $jwt = str_replace('Bearer ', '', $request->headers->get('Authorization'));
 
-            $jwtService = $this->get(\App\Service\Jwt::class);
+            $jwtService = $this->get(Jwt::class);
             $payload    = $jwtService->decode($jwt);
 
             if (isset($payload->did)) {
