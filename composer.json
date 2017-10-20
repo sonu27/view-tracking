@@ -6,6 +6,7 @@
         "aws/aws-sdk-php": "^3.36",
         "defuse/php-encryption": "^2.1",
         "firebase/php-jwt": "^5.0",
+        "nelmio/cors-bundle": "^1.5",
         "ramsey/uuid": "^3.7",
         "symfony/framework-bundle": "^3.3",
         "symfony/yaml": "^3.3"
