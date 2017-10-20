@@ -7,7 +7,6 @@ use App\Repository\ViewCountRepository;
 use App\Repository\ViewRepository;
 use App\Service\Encryptor;
 use Aws\DynamoDb\Exception\DynamoDbException;
-use Firebase\JWT\JWT;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -81,10 +80,10 @@ class DefaultController extends Controller
     {
         $userId = null;
         if ($request->headers->has('Authorization')) {
-            $auth = str_replace('Bearer ', '', $request->headers->get('Authorization'));
+            $jwt = str_replace('Bearer ', '', $request->headers->get('Authorization'));
 
-            JWT::$leeway = 60;
-            $payload     = JWT::decode($auth, base64_decode(getenv('PUBLIC_KEY')), ['RS256']);
+            $jwtService = $this->get(\App\Service\Jwt::class);
+            $payload    = $jwtService->decode($jwt);
 
             if (isset($payload->did)) {
                 $encryptor = $this->get(Encryptor::class);

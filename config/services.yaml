@@ -43,6 +43,12 @@ services:
             - '%env(APP_KEY)%'
         public: true
 
+    App\Service\Jwt:
+        arguments:
+            - '%env(PUBLIC_KEY)%'
+            - '%env(PRIVATE_KEY)%'
+        public: true
+
     Aws\DynamoDb\DynamoDbClient:
         arguments:
             - version: 'latest'

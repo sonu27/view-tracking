@@ -3,8 +3,8 @@
 namespace App\Tests\Functional;
 
 use App\Service\Encryptor;
+use App\Service\Jwt;
 use Aws\DynamoDb\DynamoDbClient;
-use Firebase\JWT\JWT;
 use Prophecy\Argument;
 use Symfony\Component\BrowserKit\Cookie as BKCookie;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -50,12 +50,14 @@ class ViewTrackingTest extends WebTestCase
         $encryptor = new Encryptor(getenv('APP_KEY'));
         $userId    = $encryptor->encrypt('123');
 
-        $auth = JWT::encode(['did' => $userId], base64_decode(getenv('PRIVATE_KEY')), 'RS256');
-
         $client = static::createClient();
         self::$kernel->getContainer()->set(DynamoDbClient::class, $this->dynamoDbClientMock->reveal());
 
-        $client->request('POST', '/', [], [], ['HTTP_AUTHORIZATION' => "Bearer {$auth}"], json_encode($content));
+        $jwtService = $this->prophesize(Jwt::class);
+        $jwtService->decode(Argument::any())->willReturn((object)['pid' => $userId]);
+        self::$kernel->getContainer()->set(Jwt::class, $jwtService->reveal());
+
+        $client->request('POST', '/', [], [], ['HTTP_AUTHORIZATION' => "Bearer test"], json_encode($content));
         $response = $client->getResponse();
 
         $this->assertEquals('Success', $response->getContent());
