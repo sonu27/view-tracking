@@ -7,7 +7,7 @@ stages:
 - test
 
 variables:
-  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  CONTAINER_TEST_IMAGE: registry.gitlab.com/the-dots/view-tracking/php:$CI_COMMIT_REF_NAME
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
