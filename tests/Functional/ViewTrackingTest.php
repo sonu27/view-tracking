@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Cookie;
 class ViewTrackingTest extends WebTestCase
 {
     private $dynamoDbClientMock;
+    private $encryptor;
+    private $jwtService;
 
     protected function setUp()
     {
@@ -21,6 +23,13 @@ class ViewTrackingTest extends WebTestCase
         $this->dynamoDbClientMock->query(Argument::any())->willReturn(['Count' => 0]);
         $this->dynamoDbClientMock->updateItem(Argument::any())->willReturn();
         $this->dynamoDbClientMock->putItem(Argument::any())->willReturn();
+
+        $this->encryptor = $this->prophesize(Encryptor::class);
+        $this->encryptor->encrypt(Argument::any())->willReturn('test');
+        $this->encryptor->decrypt(Argument::any())->willReturn('test');
+
+        $this->jwtService = $this->prophesize(Jwt::class);
+        $this->jwtService->decode(Argument::any())->willReturn((object)['pid' => 'userId']);
     }
 
     public function testInvalidRequestReturns400(): void
@@ -31,7 +40,7 @@ class ViewTrackingTest extends WebTestCase
         ];
 
         $client = static::createClient();
-        self::$kernel->getContainer()->set(DynamoDbClient::class, $this->dynamoDbClientMock->reveal());
+        $this->setMocks();
 
         $client->request('POST', '/', [], [], [], json_encode($content));
         $response = $client->getResponse();
@@ -51,11 +60,7 @@ class ViewTrackingTest extends WebTestCase
         $userId    = $encryptor->encrypt('123');
 
         $client = static::createClient();
-        self::$kernel->getContainer()->set(DynamoDbClient::class, $this->dynamoDbClientMock->reveal());
-
-        $jwtService = $this->prophesize(Jwt::class);
-        $jwtService->decode(Argument::any())->willReturn((object)['pid' => $userId]);
-        self::$kernel->getContainer()->set(Jwt::class, $jwtService->reveal());
+        $this->setMocks();
 
         $client->request('POST', '/', [], [], ['HTTP_AUTHORIZATION' => "Bearer test"], json_encode($content));
         $response = $client->getResponse();
@@ -72,7 +77,7 @@ class ViewTrackingTest extends WebTestCase
         ];
 
         $client = static::createClient();
-        self::$kernel->getContainer()->set(DynamoDbClient::class, $this->dynamoDbClientMock->reveal());
+        $this->setMocks();
 
         $client->request('POST', '/', [], [], [], json_encode($content));
 
@@ -94,12 +99,10 @@ class ViewTrackingTest extends WebTestCase
             'resource-id' => 1234,
         ];
 
-        $encryptor = new Encryptor(getenv('APP_KEY'));
-
-        $userUuid = $encryptor->encrypt('test');
+        $userUuid = 'test';
 
         $client = static::createClient();
-        self::$kernel->getContainer()->set(DynamoDbClient::class, $this->dynamoDbClientMock->reveal());
+        $this->setMocks();
 
         $client->getCookieJar()->set(
             new BKCookie('userUuid', $userUuid, strtotime('+30 minutes'), '/', getenv('DOMAIN'), false)//TODO: false for the test, find a fix
@@ -109,6 +112,13 @@ class ViewTrackingTest extends WebTestCase
         /** @var Cookie $cookie */
         $cookie = $client->getResponse()->headers->getCookies()[0];
 
-        $this->assertEquals('test', $encryptor->decrypt($cookie->getValue()));
+        $this->assertEquals($userUuid, $cookie->getValue());
+    }
+
+    private function setMocks()
+    {
+        self::$kernel->getContainer()->set(DynamoDbClient::class, $this->dynamoDbClientMock->reveal());
+        self::$kernel->getContainer()->set(Encryptor::class, $this->encryptor->reveal());
+        self::$kernel->getContainer()->set(Jwt::class, $this->jwtService->reveal());
     }
 }
