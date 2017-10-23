@@ -13,7 +13,6 @@ class Encryptor
 
     public function __construct(string $key)
     {
-
         $this->key = $key;
     }
 

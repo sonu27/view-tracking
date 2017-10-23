@@ -56,9 +56,6 @@ class ViewTrackingTest extends WebTestCase
             'resource-id' => 1234,
         ];
 
-        $encryptor = new Encryptor(getenv('APP_KEY'));
-        $userId    = $encryptor->encrypt('123');
-
         $client = static::createClient();
         $this->setMocks();
 
