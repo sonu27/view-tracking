@@ -7,8 +7,9 @@ use App\Repository\ViewCountRepository;
 use App\Repository\ViewRepository;
 use App\Service\Encryptor;
 use App\Service\Jwt;
-use Aws\DynamoDb\Exception\DynamoDbException;
 use Ramsey\Uuid\Uuid;
+use Rollbar\Payload\Level;
+use Rollbar\Rollbar;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,22 +49,19 @@ class DefaultController extends Controller
         /** @var ViewCountRepository $viewCountRepo */
         $viewCountRepo = $this->get(ViewCountRepository::class);
 
-        // find any items within the last session time
         try {
+            // find any items within the last session time
             $result = $viewRepo->findRecentByUser($resourceType, $resourceId, $userUuid, $time);
-        } catch (DynamoDbException $e) {
-            var_dump($e->getMessage());//todo: remove
-        }
 
-        if (isset($result['Count']) && $result['Count'] == 0) {
-            try {
+            if (isset($result['Count']) && $result['Count'] == 0) {
                 $viewCountRepo->incrementCount($resourceId, $resourceType);
 
-            } catch (DynamoDbException $e) {
-                return new Response('Unable to add item', 400);
+                $viewRepo->addView($view);
             }
+        } catch (\Exception $e) {
+            Rollbar::log(Level::ERROR, $e);
 
-            $viewRepo->addView($view);
+            return new Response('Unable to add item', 400);
         }
 
         $response->headers->setCookie($this->getCookie('userUuid', $encryptor->encrypt($userUuid)));
