@@ -72,7 +72,7 @@ class DefaultController extends Controller
 
     private function getCookie(string $key, string $value): Cookie
     {
-        return new Cookie($key, $value, strtotime('+30 minutes'), '/', getenv('DOMAIN'), true);
+        return new Cookie($key, $value, strtotime('+1 year'), '/', getenv('DOMAIN'), true);
     }
 
     private function getUserIdFromRequest(Request $request)
