@@ -1,4 +1,5 @@
 image: docker:latest
+
 services:
 - docker:dind
 
@@ -7,19 +8,26 @@ stages:
 - test
 
 variables:
-  CONTAINER_TEST_IMAGE: registry.gitlab.com/the-dots/view-tracking/php:$CI_COMMIT_REF_NAME
+  CONTAINER_TEST_IMAGE_PHP: registry.gitlab.com/the-dots/view-tracking/php:$CI_COMMIT_REF_NAME
+  CONTAINER_TEST_IMAGE_NGINX: registry.gitlab.com/the-dots/view-tracking/nginx:$CI_COMMIT_REF_NAME
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
 
-build:
+build_php:
   stage: build
   script:
-    - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile-php .
-    - docker push $CONTAINER_TEST_IMAGE
+    - docker build --pull -t $CONTAINER_TEST_IMAGE_PHP -f Dockerfile-php .
+    - docker push $CONTAINER_TEST_IMAGE_PHP
+
+build_nginx:
+  stage: build
+  script:
+    - docker build --pull -t $CONTAINER_TEST_IMAGE_NGINX ./docker/nginx
+    - docker push $CONTAINER_TEST_IMAGE_NGINX
 
 test1:
   stage: test
   script:
-    - docker pull $CONTAINER_TEST_IMAGE
-    - docker run -w /var/www -e APP_ENV=test $CONTAINER_TEST_IMAGE vendor/bin/phpunit
+    - docker pull $CONTAINER_TEST_IMAGE_PHP
+    - docker run -w /var/www -e APP_ENV=test $CONTAINER_TEST_IMAGE_PHP vendor/bin/phpunit
