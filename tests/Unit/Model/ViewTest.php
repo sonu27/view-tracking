@@ -17,6 +17,6 @@ class ViewTest extends TestCase
     {
         $view = new View('view-job', 1, 'a');
 
-        $this->assertEquals('job', $view->toArray()['resourceType']);
+        $this->assertEquals('job', $view->getResourceType());
     }
 }

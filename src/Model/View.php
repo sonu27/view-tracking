@@ -63,9 +63,9 @@ class View
         $this->userId       = $userId;
     }
 
-    private function validEvent(string $event): bool
+    public function getResourceType(): string
     {
-        return in_array($event, self::EVENTS, true);
+        return $this->resourceType;
     }
 
     public function toArray(): array
@@ -79,5 +79,10 @@ class View
             'unixTime'     => $this->unixTime,
             'userId'       => $this->userId,
         ];
+    }
+
+    private function validEvent(string $event): bool
+    {
+        return in_array($event, self::EVENTS, true);
     }
 }

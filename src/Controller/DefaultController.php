@@ -35,9 +35,9 @@ class DefaultController extends Controller
 
         $userUuid     = $this->getUserUuidFromRequestOrCreateNewOne($request);
         $userId       = $this->getUserIdFromRequest($request);
-        $resourceType = (string)explode('-', $data['event'])[1];
         $resourceId   = (int)$data['resource-id'];
         $view         = new View($data['event'], $resourceId, $userUuid, $userId);
+        $resourceType = $view->getResourceType();
 
         /** @var Encryptor $encryptor */
         $encryptor = $this->get(Encryptor::class);
