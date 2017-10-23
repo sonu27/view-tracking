@@ -84,9 +84,8 @@ class DefaultController extends Controller
             $jwtService = $this->get(Jwt::class);
             $payload    = $jwtService->decode($jwt);
 
-            if (isset($payload->did)) {
-                $encryptor = $this->get(Encryptor::class);
-                $userId    = $encryptor->decrypt($payload->did);
+            if (isset($payload->sub)) {
+                $userId = $payload->sub;
             }
         }
 
