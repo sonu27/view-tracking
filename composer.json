@@ -9,6 +9,7 @@
         "nelmio/cors-bundle": "^1.5",
         "ramsey/uuid": "^3.7",
         "rollbar/rollbar": "^1.3",
+        "symfony/console": "^3.3",
         "symfony/framework-bundle": "^3.3",
         "symfony/yaml": "^3.3"
     },
@@ -36,8 +37,7 @@
     },
     "scripts": {
         "auto-scripts": {
-            "make cache-warmup": "script",
-            "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd"
+            "cache:clear": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"

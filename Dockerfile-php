@@ -11,17 +11,19 @@ COPY docker/php/override.ini $PHP_INI_DIR/conf.d/
 RUN curl -sS https://getcomposer.org/installer | \
     php -- --install-dir=/usr/bin/ --filename=composer
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
-
 COPY composer.json /var/www/
 COPY composer.lock /var/www/
 
 WORKDIR /var/www/
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV APP_ENV=1
+
 RUN composer install --no-scripts --no-autoloader --no-progress
 
 COPY . /var/www/
 
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize && \
+    bin/console cache:warmup
 
 WORKDIR /var/www/html
