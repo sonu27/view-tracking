@@ -81,9 +81,11 @@ class ViewTrackingTest extends WebTestCase
 
         $client->request('POST', '/', [], [], [], json_encode($content));
 
-        /** @var Cookie $cookie */
-        $cookie = $client->getResponse()->headers->getCookies()[0];
+        /** @var Cookie[] $cookie */
+        $cookies = $client->getResponse()->headers->getCookies();
+        $this->assertNotEmpty($client->getResponse()->headers->getCookies());
 
+        $cookie = $cookies[0];
         $this->assertEquals('userUuid', $cookie->getName());
         $this->assertNotEmpty($cookie->getValue());
         $this->assertEquals(getenv('DOMAIN'), $cookie->getDomain());
@@ -109,10 +111,11 @@ class ViewTrackingTest extends WebTestCase
         );
         $client->request('POST', '/', [], [], [], json_encode($content));
 
-        /** @var Cookie $cookie */
-        $cookie = $client->getResponse()->headers->getCookies()[0];
+        /** @var Cookie[] $cookie */
+        $cookies = $client->getResponse()->headers->getCookies();
+        $this->assertNotEmpty($client->getResponse()->headers->getCookies());
 
-        $this->assertEquals($userUuid, $cookie->getValue());
+        $this->assertEquals($userUuid, $cookies[0]->getValue());
     }
 
     private function setMocks()
