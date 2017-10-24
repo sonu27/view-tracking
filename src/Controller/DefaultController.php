@@ -21,7 +21,7 @@ class DefaultController extends Controller
 
     public function homeAction()
     {
-        return new Response('View tracking');
+        return new Response('vt.the-dots.com');
     }
 
     public function indexAction(Request $request)
@@ -33,7 +33,7 @@ class DefaultController extends Controller
         if (!isset($data['event'], $data['resource-id'])
             || !in_array($data['event'], View::EVENTS, true)) {
 
-            return new Response('Bad response', 400);
+            return new Response('', 400);
         }
 
         $userUuid     = $this->getUserUuidFromRequestOrCreateNewOne($request);
@@ -64,11 +64,10 @@ class DefaultController extends Controller
         } catch (\Exception $e) {
             Rollbar::log(Level::ERROR, $e);
 
-            return new Response('Unable to add item', 400);
+            return new Response('', 500);
         }
 
         $response->headers->setCookie($this->getCookie(self::USER_UUID_KEY, $encryptor->encrypt($userUuid)));
-        $response->setContent('Success');
 
         return $response;
     }

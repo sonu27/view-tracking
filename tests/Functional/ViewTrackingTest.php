@@ -45,7 +45,6 @@ class ViewTrackingTest extends WebTestCase
         $client->request('POST', '/', [], [], [], json_encode($content));
         $response = $client->getResponse();
 
-        $this->assertEquals('Bad response', $response->getContent());
         $this->assertEquals(400, $response->getStatusCode());
     }
 
@@ -62,7 +61,6 @@ class ViewTrackingTest extends WebTestCase
         $client->request('POST', '/', [], [], ['HTTP_AUTHORIZATION' => "Bearer test"], json_encode($content));
         $response = $client->getResponse();
 
-        $this->assertEquals('Success', $response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
     }
 
