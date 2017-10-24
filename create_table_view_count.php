@@ -25,21 +25,13 @@ $params = [
     'TableName'             => 'ViewCounts',
     'KeySchema'             => [
         [
-            'AttributeName' => 'resourceId',
-            'KeyType'       => 'HASH'  //Partition key
-        ],
-        [
-            'AttributeName' => 'resourceType',
-            'KeyType'       => 'RANGE'  //Sort key
+            'AttributeName' => 'ID',
+            'KeyType'       => 'HASH',
         ],
     ],
     'AttributeDefinitions'  => [
         [
-            'AttributeName' => 'resourceId',
-            'AttributeType' => 'N',
-        ],
-        [
-            'AttributeName' => 'resourceType',
+            'AttributeName' => 'ID',
             'AttributeType' => 'S',
         ],
     ],

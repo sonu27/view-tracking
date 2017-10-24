@@ -23,13 +23,18 @@ class ViewCountRepository
         return $this->client->updateItem([
             'TableName'                 => self::TABLE,
             'Key'                       => [
-                'resourceId'   => ['N' => (string)$resourceId],
-                'resourceType' => ['S' => (string)$resourceType],
+                'ID' => ['S' => $this->getId($resourceType, $resourceId)],
             ],
-            'UpdateExpression'          => 'Add num :incr',
+            'UpdateExpression'          => 'Add ViewCount :incr SET ResourceType = :resourceType',
             'ExpressionAttributeValues' => [
-                ':incr' => ['N' => '1'],
+                ':incr'         => ['N' => '1'],
+                ':resourceType' => ['S' => $resourceType],
             ],
         ]);
+    }
+
+    private function getId(string $resourceType, int $resourceId): string
+    {
+        return $resourceType.'-'.$resourceId;
     }
 }
