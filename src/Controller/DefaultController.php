@@ -57,9 +57,10 @@ class DefaultController extends Controller
 
             if (isset($result['Count']) && $result['Count'] == 0) {
                 $viewCountRepo->incrementCount($resourceId, $resourceType);
-
-                $viewRepo->addView($view);
             }
+
+            $viewRepo->addView($view);
+
         } catch (\Exception $e) {
             Rollbar::log(Level::ERROR, $e);
 
