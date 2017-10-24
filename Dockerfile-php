@@ -17,7 +17,7 @@ COPY composer.lock /var/www/
 WORKDIR /var/www/
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV APP_ENV=1
+ENV APP_ENV=prod
 
 RUN composer install --no-scripts --no-autoloader --no-progress
 
