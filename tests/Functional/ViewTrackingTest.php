@@ -83,7 +83,7 @@ class ViewTrackingTest extends WebTestCase
         $this->assertNotEmpty($client->getResponse()->headers->getCookies());
 
         $cookie = $cookies[0];
-        $this->assertEquals('userUuid', $cookie->getName());
+        $this->assertEquals('user_uuid', $cookie->getName());
         $this->assertNotEmpty($cookie->getValue());
         $this->assertEquals(getenv('DOMAIN'), $cookie->getDomain());
         $this->assertEquals('/', $cookie->getPath());
@@ -104,7 +104,7 @@ class ViewTrackingTest extends WebTestCase
         $this->setMocks();
 
         $client->getCookieJar()->set(
-            new BKCookie('userUuid', $userUuid, strtotime('+30 minutes'), '/', getenv('DOMAIN'), false)//TODO: false for the test, find a fix
+            new BKCookie('user_uuid', $userUuid, strtotime('+1 year'), '/', getenv('DOMAIN'), false)//TODO: false for the test, find a fix
         );
         $client->request('POST', '/', [], [], [], json_encode($content));
 

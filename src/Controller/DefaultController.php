@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends Controller
 {
+    const USER_UUID_KEY = 'user_uuid';
+
     public function homeAction()
     {
         return new Response('View tracking');
@@ -64,7 +66,7 @@ class DefaultController extends Controller
             return new Response('Unable to add item', 400);
         }
 
-        $response->headers->setCookie($this->getCookie('userUuid', $encryptor->encrypt($userUuid)));
+        $response->headers->setCookie($this->getCookie(self::USER_UUID_KEY, $encryptor->encrypt($userUuid)));
         $response->setContent('Success');
 
         return $response;
@@ -94,9 +96,9 @@ class DefaultController extends Controller
 
     private function getUserUuidFromRequestOrCreateNewOne(Request $request): string
     {
-        if ($request->cookies->has('userUuid')) {
+        if ($request->cookies->has(self::USER_UUID_KEY)) {
             $encryptor = $this->get(Encryptor::class);
-            $userUuid  = $encryptor->decrypt($request->cookies->get('userUuid'));
+            $userUuid  = $encryptor->decrypt($request->cookies->get(self::USER_UUID_KEY));
         } else {
             $userUuid = (string)Uuid::uuid4();
         }
