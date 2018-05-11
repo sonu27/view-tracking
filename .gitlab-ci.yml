@@ -8,26 +8,28 @@ stages:
 - test
 
 variables:
-  CONTAINER_TEST_IMAGE_PHP: registry.gitlab.com/the-dots/view-tracking/php:$CI_COMMIT_REF_NAME
-  CONTAINER_TEST_IMAGE_NGINX: registry.gitlab.com/the-dots/view-tracking/nginx:$CI_COMMIT_REF_NAME
+  APP_IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG/app
+  APP_IMAGE_WITH_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG/app:$CI_COMMIT_SHA
+  NGINX_IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG/nginx
+  NGINX_IMAGE_WITH_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG/nginx:$CI_COMMIT_SHA
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
 
-build_php:
+build:
   stage: build
   script:
-    - docker build --pull -t $CONTAINER_TEST_IMAGE_PHP -f Dockerfile-php .
-    - docker push $CONTAINER_TEST_IMAGE_PHP
-
-build_nginx:
-  stage: build
-  script:
-    - docker build --pull -t $CONTAINER_TEST_IMAGE_NGINX ./docker/nginx
-    - docker push $CONTAINER_TEST_IMAGE_NGINX
+    - docker build --pull -t ${APP_IMAGE_WITH_TAG} -f Dockerfile-php .
+    - docker build --pull -t ${NGINX_IMAGE_WITH_TAG} ./docker/nginx
+    - docker push ${APP_IMAGE_WITH_TAG}
+    - docker push ${NGINX_IMAGE_WITH_TAG}
+    - docker tag ${APP_IMAGE_WITH_TAG} ${APP_IMAGE}:latest
+    - docker tag ${NGINX_IMAGE_WITH_TAG} ${NGINX_IMAGE}:latest
+    - docker push ${APP_IMAGE}:latest
+    - docker push ${NGINX_IMAGE}:latest
 
 test1:
   stage: test
   script:
-    - docker pull $CONTAINER_TEST_IMAGE_PHP
-    - docker run -w /var/www -e APP_ENV=test $CONTAINER_TEST_IMAGE_PHP vendor/bin/phpunit
+    - docker pull $APP_IMAGE_WITH_TAG
+    - docker run -w /var/www -e APP_ENV=test $APP_IMAGE_WITH_TAG vendor/bin/phpunit
