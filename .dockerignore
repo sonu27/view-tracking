@@ -1,5 +1,8 @@
 .env
 .git
 .idea
+.gitlab-ci.yml
+bitbucket-pipelines.yml
+/build/
 /var/
 /vendor/
